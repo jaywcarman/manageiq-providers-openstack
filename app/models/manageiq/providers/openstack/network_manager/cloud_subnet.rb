@@ -24,6 +24,105 @@ class ManageIQ::Providers::Openstack::NetworkManager::CloudSubnet < ::CloudSubne
     end
   end
 
+  def self.params_for_create(ems)
+    {
+      :fields => [
+        # TODO: Sub-forms for 1) "Network Management Provider" and 2) "Cloud Subnet details" sections?
+        # Network Management Provider
+        {
+          :component => 'select',
+          :name      => 'cloud_tenant_placement',
+          :id        => 'cloud_tenant_placement',
+          :label     => _('Cloud Tenant Placement'),
+          # TODO: Get list of tenents for selected network manager
+          :options   => ems.cloud_volume_types.map do |cvt|
+            {
+              :label => cvt.description,
+              :value => cvt.name,
+            }
+          end,
+        },
+        # Cloud Subnet details
+        {
+          :component => 'select',
+          :name      => 'network',
+          :id        => 'network',
+          :label     => _('Network'),
+          # TODO: Get list of networks in selected network manager
+          :options   => ems.cloud_volume_types.map do |cvt|
+            {
+              :label => cvt.description,
+              :value => cvt.name,
+            }
+          end,
+          :isRequired => true,
+          :validate   => [{:type => 'required'}]
+        },
+        {
+          :component => 'text-field',
+          :id        => 'subnet_name',
+          :name      => 'subnet_name',
+          :label     => _('Subnet Name'),
+        },
+        {
+          :component => 'text-field',
+          :id        => 'gateway',
+          :name      => 'gateway',
+          :label     => _('Gateway'),
+        },
+        {
+          :component => 'switch',
+          :id        => 'dhcp',
+          :name      => 'dhcp',
+          :label     => _('DHCP'),
+          :onText    => 'Enabled',
+          :offText   => 'Disabled',
+        },
+        {
+          :component => 'select',
+          :name      => 'ip_version',
+          :id        => 'ip_version',
+          :label     => _('IP Version'),
+          :options   => [
+            {
+              :label => 'ipv4',
+              :value => 'ipv4',
+            },
+            {
+              :label => 'ipv6',
+              :value => 'ipv6',
+            }
+          ]
+        },
+        {
+          :component => 'text-field',
+          :id        => 'subnet_cidr',
+          :name      => 'subnet_cidr',
+          :label     => _('Subnet CIDR'),
+          :isRequired => true,
+          :validate   => [{:type => 'required'}]
+        },
+        {
+          :component => 'text-area',
+          :id        => 'allocation_pools',
+          :name      => 'allocation_pools',
+          :label     => _('Allocation Pools'),
+        },
+        {
+          :component => 'text-area',
+          :id        => 'dns_servers',
+          :name      => 'dns_servers',
+          :label     => _('DNS Servers'),
+        },
+        {
+          :component => 'text-area',
+          :id        => 'host_routes',
+          :name      => 'host_routes',
+          :label     => _('Host Routes'),
+        },
+      ],
+    }
+  end
   def self.raw_create_cloud_subnet(ext_management_system, options)
     cloud_tenant = options.delete(:cloud_tenant)
     subnet = nil
