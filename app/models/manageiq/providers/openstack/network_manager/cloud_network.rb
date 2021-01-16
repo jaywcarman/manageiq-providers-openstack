@@ -4,6 +4,72 @@ class ManageIQ::Providers::Openstack::NetworkManager::CloudNetwork < ::CloudNetw
 
   supports :create
 
+  def self.params_for_create(ems)
+    {
+      :fields => [
+        # TODO: Sub-forms for 1) "Network Provider" and 2) "Network Information" sections?
+        ## Placement
+        {
+          :component => 'select',
+          :name      => 'cloud_tenant',
+          :id        => 'cloud_tenant',
+          :label     => _('Cloud Tenant'),
+          # TODO: Get list of tenents for selected network manager
+          :options   => ems.cloud_volume_types.map do |cvt|
+            {
+              :label => cvt.description,
+              :value => cvt.name,
+            }
+          end,
+        },
+        ## Network Provider Information
+        {
+          :component => 'select',
+          :name      => 'provider_network_type',
+          :id        => 'provider_network_type',
+          :label     => _('Provider Network Type'),
+          # TODO: Get list of network types for selected network manager/placement
+          :options   => ems.cloud_volume_types.map do |cvt|
+            {
+              :label => cvt.description,
+              :value => cvt.name,
+            }
+          end,
+        },
+        # Network Information
+        {
+          :component  => 'text-field',
+          :id         => 'network_name',
+          :name       => 'network_name',
+          :label      => _('Network Name'),
+          :isRequired => true,
+          :validate   => [{:type => "required"}]
+        },
+        {
+          :component => 'switch',
+          :id        => 'external_router',
+          :name      => 'external_router',
+          :label     => _('External Router'),
+        },
+        {
+          :component => 'switch',
+          :id        => 'administrative_state',
+          :name      => 'administrative_state',
+          :label     => _('Administrative State'),
+        },
+        {
+          :component => 'switch',
+          :id        => 'shared',
+          :name      => 'shared',
+          :label     => _('Shared'),
+          :onText    => 'Up',
+          :offText   => 'Down',
+        },
+
+      ],
+    }
+  end
+
   supports :delete do
     if ext_management_system.nil?
       unsupported_reason_add(:delete_cloud_network, _("The Cloud Network is not connected to an active %{table}") % {
